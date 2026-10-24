@@ -1,0 +1,8 @@
+bin/
+obj/
+release/
+*.csproj.user
+*.log
+.vs/
+*.bat
+*.ps1
