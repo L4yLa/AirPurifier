@@ -1,0 +1,15 @@
+<settings-container xmlns='http://monkeymanboy.github.io/BSML-Docs/'>
+  <toggle-setting text='Remove Note Cut Sparkles' value='note-cut-sparkles' apply-on-change='true'
+                  hover-hint='Sparkles that fly out when a note is cut.' />
+  <toggle-setting text='Remove Note Cut Flash' value='note-cut-flash' apply-on-change='true'
+                  hover-hint='The flash at the cut point when a note is cut.' />
+  <toggle-setting text='Remove Debris' value='debris' apply-on-change='true'
+                  hover-hint='The halves of a cut note.' />
+  <toggle-setting text='Remove Saber Clash Sparkles' value='saber-clash-sparkles' apply-on-change='true'
+                  hover-hint='Sparkles when the sabers touch each other. Vibration is kept.' />
+  <toggle-setting text='Remove Wall Sparkles' value='wall-sparkles' apply-on-change='true'
+                  hover-hint='Sparkles and glow when a saber touches a wall. Vibration is kept.' />
+  <toggle-setting text='Hide Wall Inside' value='wall-core' apply-on-change='true'
+                  hover-hint='Hides the inside of walls. The wall frame stays visible.' />
+  <text text='Changes take effect from the next song.' align='Center' font-size='3.5' size-delta-y='6' />
+</settings-container>

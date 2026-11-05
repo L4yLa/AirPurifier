@@ -25,8 +25,6 @@ namespace AirPurifier
     /// </summary>
     internal static class DustRemover
     {
-        private const string HarmonyId = "com.l4yla.AirPurifier";
-
         private const string EnvironmentRoot = "Environment";
         private const string MainMenuRoot = "Wrapper";
         private const string MenuCoreRoot = "MenuCore";
@@ -45,7 +43,7 @@ namespace AirPurifier
         /// </summary>
         private static MethodInfo s_onPreCullCallback;
 
-        internal static void Install()
+        internal static void Install(Harmony harmony)
         {
             s_onPreCullCallback = typeof(MoveAndRotateWithMainCamera).GetMethod(
                 "OnPreCullCallback", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -62,7 +60,7 @@ namespace AirPurifier
                 }
                 else
                 {
-                    new Harmony(HarmonyId).Patch(
+                    harmony.Patch(
                         target,
                         postfix: new HarmonyMethod(typeof(DustRemover), nameof(SpawnPlayersPostfix)));
                 }

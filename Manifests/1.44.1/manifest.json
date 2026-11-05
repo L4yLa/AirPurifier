@@ -3,10 +3,11 @@
   "id": "AirPurifier",
   "name": "Air Purifier",
   "author": "L4yLa",
-  "version": "0.1.0",
-  "description": "Removes the floating dust particles from environments, the main menu and multiplayer. No per-frame cost.",
+  "version": "0.2.0",
+  "description": "Removes the floating dust particles, and optionally the note cut sparkles and flash, debris, saber clash sparkles and wall sparkles, and hides the inside of walls. No per-frame cost.",
   "gameVersion": "1.44.1",
   "dependsOn": {
-    "BSIPA": "^4.3.7"
+    "BSIPA": "^4.3.7",
+    "BeatSaberMarkupLanguage": "^1.14.1"
   }
 }
