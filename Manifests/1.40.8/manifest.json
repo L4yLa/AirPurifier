@@ -3,8 +3,8 @@
   "id": "AirPurifier",
   "name": "Air Purifier",
   "author": "L4yLa",
-  "version": "0.2.0",
-  "description": "Removes the floating dust particles, and optionally the note cut sparkles and flash, debris, saber clash sparkles and wall sparkles, and hides the inside of walls. No per-frame cost.",
+  "version": "0.2.2",
+  "description": "Removes the floating dust particles, and optionally the note cut sparkles, debris, saber clash sparkles and wall sparkles, hides the inside of walls, and adjusts the size and duration of the sparkles along the swing. No per-frame cost.",
   "gameVersion": "1.40.8",
   "dependsOn": {
     "BSIPA": "^4.3.5",

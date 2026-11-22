@@ -1,8 +1,7 @@
 <settings-container xmlns='http://monkeymanboy.github.io/BSML-Docs/'>
+  <text text='Changes take effect from the next song.' align='Center' font-size='3.5' size-delta-y='6' />
   <toggle-setting text='Remove Note Cut Sparkles' value='note-cut-sparkles' apply-on-change='true'
-                  hover-hint='Sparkles that fly out when a note is cut.' />
-  <toggle-setting text='Remove Note Cut Flash' value='note-cut-flash' apply-on-change='true'
-                  hover-hint='The flash at the cut point when a note is cut.' />
+                  hover-hint='Sparkles that fly out in all directions when a note is cut. The sparkles along the swing are set with Change Slash Effect.' />
   <toggle-setting text='Remove Debris' value='debris' apply-on-change='true'
                   hover-hint='The halves of a cut note.' />
   <toggle-setting text='Remove Saber Clash Sparkles' value='saber-clash-sparkles' apply-on-change='true'
@@ -11,5 +10,15 @@
                   hover-hint='Sparkles and glow when a saber touches a wall. Vibration is kept.' />
   <toggle-setting text='Hide Wall Inside' value='wall-core' apply-on-change='true'
                   hover-hint='Hides the inside of walls. The wall frame stays visible.' />
-  <text text='Changes take effect from the next song.' align='Center' font-size='3.5' size-delta-y='6' />
+  <toggle-setting text='Change Slash Effect' value='change-slash' apply-on-change='true' on-change='change-slash-changed'
+                  hover-hint='Changes the size and duration of the sparkles that fly along the swing when a note is cut.' />
+  <slider-setting text='Slash Width' value='slash-width' tags='slash' apply-on-change='true'
+                  min='0' max='300' increment='1' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  hover-hint='0% on any slash setting hides the slash sparkles.' />
+  <slider-setting text='Slash Length' value='slash-length' tags='slash' apply-on-change='true'
+                  min='0' max='300' increment='1' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  hover-hint='0% on any slash setting hides the slash sparkles.' />
+  <slider-setting text='Slash Duration' value='slash-duration' tags='slash' apply-on-change='true'
+                  min='0' max='300' increment='1' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  hover-hint='0% on any slash setting hides the slash sparkles. Longer duration also makes them fly farther.' />
 </settings-container>
