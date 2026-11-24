@@ -1,7 +1,5 @@
 <settings-container xmlns='http://monkeymanboy.github.io/BSML-Docs/'>
   <text text='Changes take effect from the next song.' align='Center' font-size='3.5' size-delta-y='6' />
-  <toggle-setting text='Remove Note Cut Sparkles' value='note-cut-sparkles' apply-on-change='true'
-                  hover-hint='Sparkles that fly out in all directions when a note is cut. The sparkles along the swing are set with Change Slash Effect.' />
   <toggle-setting text='Remove Debris' value='debris' apply-on-change='true'
                   hover-hint='The halves of a cut note.' />
   <toggle-setting text='Remove Saber Clash Sparkles' value='saber-clash-sparkles' apply-on-change='true'
@@ -10,15 +8,38 @@
                   hover-hint='Sparkles and glow when a saber touches a wall. Vibration is kept.' />
   <toggle-setting text='Hide Wall Inside' value='wall-core' apply-on-change='true'
                   hover-hint='Hides the inside of walls. The wall frame stays visible.' />
+  <toggle-setting text='Skip Health Warning' value='skip-health-warning' apply-on-change='true'
+                  hover-hint='Skips the health and safety screen at startup once you have agreed to it. Takes effect from the next launch.' />
+  <!-- 調整グループの前の空白（約0.5行）。高さは見た目に合わせて変えてよい -->
+  <horizontal pref-height='4' />
+  <toggle-setting text='Change Note Cut Sparkles' value='change-cut' apply-on-change='true' on-change='change-cut-changed'
+                  hover-hint='Changes the size and duration of the sparkles that fly out in all directions when a note is cut.' />
+  <slider-setting text='Cut Sparkle Width' value='cut-width' tags='cut' apply-on-change='true'
+                  min='0' max='5000' increment='10' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  hover-hint='0% on any cut sparkle setting hides these sparkles.' />
+  <slider-setting text='Cut Sparkle Length' value='cut-length' tags='cut' apply-on-change='true'
+                  min='0' max='5000' increment='10' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  hover-hint='0% on any cut sparkle setting hides these sparkles.' />
+  <slider-setting text='Cut Sparkle Duration' value='cut-duration' tags='cut' apply-on-change='true'
+                  min='0' max='5000' increment='10' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  hover-hint='0% on any cut sparkle setting hides these sparkles. Longer duration also makes them fly farther.' />
+  <toggle-setting text='Cut Sparkle 10x Limit' value='cut-limit' tags='cut' apply-on-change='true'
+                  hover-hint='Raises the maximum number of these sparkles at once by 10x, so that long durations do not cut them off. More sparkles cost more performance.' />
+  <toggle-setting text='Cut Sparkle Gravity' value='cut-gravity' tags='cut' apply-on-change='true'
+                  hover-hint='Adds a little gravity (5%) so the sparkles droop like fireworks. Works best with a longer duration.' />
+  <!-- 調整グループの前の空白（約0.5行）。高さは見た目に合わせて変えてよい -->
+  <horizontal pref-height='4' />
   <toggle-setting text='Change Slash Effect' value='change-slash' apply-on-change='true' on-change='change-slash-changed'
                   hover-hint='Changes the size and duration of the sparkles that fly along the swing when a note is cut.' />
   <slider-setting text='Slash Width' value='slash-width' tags='slash' apply-on-change='true'
-                  min='0' max='300' increment='1' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  min='0' max='5000' increment='10' integer-only='true' show-buttons='true' formatter='percent-formatter'
                   hover-hint='0% on any slash setting hides the slash sparkles.' />
   <slider-setting text='Slash Length' value='slash-length' tags='slash' apply-on-change='true'
-                  min='0' max='300' increment='1' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  min='0' max='5000' increment='10' integer-only='true' show-buttons='true' formatter='percent-formatter'
                   hover-hint='0% on any slash setting hides the slash sparkles.' />
   <slider-setting text='Slash Duration' value='slash-duration' tags='slash' apply-on-change='true'
-                  min='0' max='300' increment='1' integer-only='true' show-buttons='true' formatter='percent-formatter'
+                  min='0' max='5000' increment='10' integer-only='true' show-buttons='true' formatter='percent-formatter'
                   hover-hint='0% on any slash setting hides the slash sparkles. Longer duration also makes them fly farther.' />
+  <toggle-setting text='Slash 10x Limit' value='slash-limit' tags='slash' apply-on-change='true'
+                  hover-hint='Raises the maximum number of these sparkles at once by 10x, so that long durations do not cut them off. More sparkles cost more performance.' />
 </settings-container>

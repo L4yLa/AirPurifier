@@ -15,6 +15,7 @@ namespace AirPurifier.UI
     {
         private const string MenuName = "Air Purifier";
         private const string Resource = "AirPurifier.UI.settings.bsml";
+        private const string CutTag = "cut";
         private const string SlashTag = "slash";
 
         private static readonly SettingsHost s_instance = new SettingsHost();
@@ -44,8 +45,26 @@ namespace AirPurifier.UI
             }
         }
 
-        [UIValue("note-cut-sparkles")]
-        public bool RemoveNoteCutSparkles { get => C.RemoveNoteCutSparkles; set => C.RemoveNoteCutSparkles = value; }
+        [UIValue("skip-health-warning")]
+        public bool SkipHealthWarning { get => C.SkipHealthWarning; set => C.SkipHealthWarning = value; }
+
+        [UIValue("change-cut")]
+        public bool ChangeNoteCutSparkles { get => C.ChangeNoteCutSparkles; set => C.ChangeNoteCutSparkles = value; }
+
+        [UIValue("cut-width")]
+        public int CutSparkleWidthPercent { get => C.CutSparkleWidthPercent; set => C.CutSparkleWidthPercent = value; }
+
+        [UIValue("cut-length")]
+        public int CutSparkleLengthPercent { get => C.CutSparkleLengthPercent; set => C.CutSparkleLengthPercent = value; }
+
+        [UIValue("cut-duration")]
+        public int CutSparkleDurationPercent { get => C.CutSparkleDurationPercent; set => C.CutSparkleDurationPercent = value; }
+
+        [UIValue("cut-limit")]
+        public bool CutSparkleLimit10x { get => C.CutSparkleLimit10x; set => C.CutSparkleLimit10x = value; }
+
+        [UIValue("cut-gravity")]
+        public bool CutSparkleGravity { get => C.CutSparkleGravity; set => C.CutSparkleGravity = value; }
 
         [UIValue("debris")]
         public bool RemoveDebris { get => C.RemoveDebris; set => C.RemoveDebris = value; }
@@ -71,6 +90,9 @@ namespace AirPurifier.UI
         [UIValue("slash-duration")]
         public int SlashDurationPercent { get => C.SlashDurationPercent; set => C.SlashDurationPercent = value; }
 
+        [UIValue("slash-limit")]
+        public bool SlashLimit10x { get => C.SlashLimit10x; set => C.SlashLimit10x = value; }
+
         [UIAction("percent-formatter")]
         public string PercentFormatter(object value) => $"{Convert.ToInt32(value)}%";
 
@@ -79,7 +101,8 @@ namespace AirPurifier.UI
         {
             try
             {
-                SetSlashSlidersVisible(C.ChangeSlashEffect);
+                SetTaggedVisible(CutTag, C.ChangeNoteCutSparkles);
+                SetTaggedVisible(SlashTag, C.ChangeSlashEffect);
             }
             catch (Exception e)
             {
@@ -87,16 +110,29 @@ namespace AirPurifier.UI
             }
         }
 
+        [UIAction("change-cut-changed")]
+        public void OnChangeCutChanged(object value)
+        {
+            try
+            {
+                SetTaggedVisible(CutTag, value is bool on ? on : C.ChangeNoteCutSparkles);
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.Error($"Failed to toggle note cut sparkle settings: {e}");
+            }
+        }
+
         /// <summary>
         /// BSML のトグルは値を設定へ反映する前にこのハンドラを呼ぶため、設定値ではなく渡された値を使う。
-        /// 例外を外へ出すと HMUI の入力処理が壊れるため、ここで止める。
+        /// 例外を外へ出すと HMUI の入力処理が壊れるため、ここで止める（change-cut-changed も同じ）。
         /// </summary>
         [UIAction("change-slash-changed")]
         public void OnChangeSlashChanged(object value)
         {
             try
             {
-                SetSlashSlidersVisible(value is bool on ? on : C.ChangeSlashEffect);
+                SetTaggedVisible(SlashTag, value is bool on ? on : C.ChangeSlashEffect);
             }
             catch (Exception e)
             {
@@ -104,9 +140,9 @@ namespace AirPurifier.UI
             }
         }
 
-        private void SetSlashSlidersVisible(bool visible)
+        private void SetTaggedVisible(string tag, bool visible)
         {
-            var objects = _parserParams?.GetObjectsWithTag(SlashTag);
+            var objects = _parserParams?.GetObjectsWithTag(tag);
             if (objects == null)
             {
                 return;

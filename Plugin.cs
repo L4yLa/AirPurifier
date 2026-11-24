@@ -29,6 +29,7 @@ namespace AirPurifier
             var harmony = new Harmony(HarmonyId);
 
             DustRemover.Install(harmony);
+            HealthWarningSkipper.Install(harmony);
 
             try
             {

@@ -10,8 +10,8 @@ using UnityEngine;
 namespace AirPurifier
 {
     /// <summary>
-    /// ゲームシーンの演出（カットの火花、デブリ、セイバー同士・ウォールとの接触の火花、ウォールの中身）を消し、
-    /// カット時に斬撃方向へ伸びる火花の大きさと時間を変える。
+    /// ゲームシーンの演出（デブリ、セイバー同士・ウォールとの接触の火花、ウォールの中身）を消し、
+    /// カット時の火花（全方向・斬撃方向）の大きさと時間を変える。
     ///
     /// <para><b>ゲーム中は処理を追加しない。</b>各オブジェクトの初期化（Awake / Start / プール生成時）に
     /// 一度だけ値を書き換え、以後はゲーム本来の処理がそのまま空振りする状態にする。
@@ -40,7 +40,14 @@ namespace AirPurifier
 
         private const int MaxSubEmitterDepth = 4;
 
-        private const int MaxSlashPercent = 300;
+        // 幅・長さ・時間の倍率の上限（%）
+        private const int MaxPercent = 5000;
+
+        // 発生上限を引き上げるときの倍率
+        private const int LimitMultiplier = 10;
+
+        // 全方向の火花に付ける重力（地球の重力に対する割合）
+        private const float CutSparkleGravityModifier = 0.05f;
 
         // SpawnParticles が斬撃方向の火花の寿命に使う定数（寿命 = 定数 × lifetimeMultiplier）
         private const float SlashLifetimeMin = 0.8f;
@@ -184,8 +191,8 @@ namespace AirPurifier
         /// 発生上限と描画を止めておけば毎回のカットは空振りになる。
         ///
         /// <para>全方向の火花は <c>_explosionPS</c>、斬撃方向へ伸びる火花は <c>_sparklesPS</c>。
-        /// カットごとにゲームが上書きするのは色・位置・向き・寿命だけで、
-        /// 大きさと描画の伸び方はここで書き換えた値がそのまま使われる。</para>
+        /// カットごとにゲームが上書きするのは色・位置・向きと、斬撃方向の火花の寿命だけで、
+        /// 大きさ・描画の伸び方・全方向の火花の寿命はここで書き換えた値がそのまま使われる。</para>
         /// </summary>
         private static void NoteCutParticlesEffectAwakePostfix(
             ParticleSystem ____sparklesPS,
@@ -196,9 +203,9 @@ namespace AirPurifier
                 s_slashLifetimeMin = SlashLifetimeMin;
                 s_slashLifetimeMax = SlashLifetimeMax;
 
-                if (C.RemoveNoteCutSparkles)
+                if (C.ChangeNoteCutSparkles)
                 {
-                    Silence(____explosionPS);
+                    ChangeCutSparkles(____explosionPS);
                 }
 
                 if (C.ChangeSlashEffect)
@@ -336,9 +343,42 @@ namespace AirPurifier
         }
 
         /// <summary>
-        /// 斬撃方向の火花は進行方向に伸ばして描かれ、見た目の長さは「太さ × lengthScale + 速さ × velocityScale」。
-        /// 幅は大きさ、長さは2つの係数で変え、lengthScale を幅の倍率で割って幅を変えても長さが変わらないようにする。
-        /// 時間は寿命だけを伸ばすため、飛ぶ速さは変わらず、その分遠くまで飛ぶ。
+        /// 全方向の火花の幅・長さ・時間を変える。寿命はカット時に上書きされないため、ここで直接書き換える。
+        /// </summary>
+        private static void ChangeCutSparkles(ParticleSystem ps)
+        {
+            if (ps == null)
+            {
+                return;
+            }
+
+            if (!TryGetScales(C.CutSparkleWidthPercent, C.CutSparkleLengthPercent, C.CutSparkleDurationPercent,
+                    out var width, out var length, out var duration))
+            {
+                Silence(ps);
+                return;
+            }
+
+            ScaleShape(ps, width, length);
+
+            var main = ps.main;
+            main.startLifetime = ScaleCurve(main.startLifetime, duration);
+
+            if (C.CutSparkleLimit10x)
+            {
+                RaiseLimit(ps);
+            }
+
+            // 元は重力 0。元から付いている減速と合わさり、飛び散って勢いが落ちたところで垂れ下がる
+            if (C.CutSparkleGravity)
+            {
+                main.gravityModifier = new ParticleSystem.MinMaxCurve(CutSparkleGravityModifier);
+            }
+        }
+
+        /// <summary>
+        /// 斬撃方向の火花の幅・長さ・時間を変える。寿命はカット時に毎回設定し直されるため、
+        /// <c>SpawnParticles</c> の定数の置き換え先（静的フィールド）に倍率を入れる。
         /// </summary>
         private static void ChangeSlash(ParticleSystem ps)
         {
@@ -347,26 +387,61 @@ namespace AirPurifier
                 return;
             }
 
-            var width = Mathf.Clamp(C.SlashWidthPercent, 0, MaxSlashPercent) / 100f;
-            var length = Mathf.Clamp(C.SlashLengthPercent, 0, MaxSlashPercent) / 100f;
-            var duration = Mathf.Clamp(C.SlashDurationPercent, 0, MaxSlashPercent) / 100f;
-
-            if (width <= 0f || length <= 0f || duration <= 0f)
+            if (!TryGetScales(C.SlashWidthPercent, C.SlashLengthPercent, C.SlashDurationPercent,
+                    out var width, out var length, out var duration))
             {
                 Silence(ps);
                 return;
             }
 
+            ScaleShape(ps, width, length);
+
+            if (C.SlashLimit10x)
+            {
+                RaiseLimit(ps);
+            }
+
+            s_slashLifetimeMin = SlashLifetimeMin * duration;
+            s_slashLifetimeMax = SlashLifetimeMax * duration;
+        }
+
+        /// <summary>
+        /// 同時に存在できる粒子の上限を引き上げる。時間を伸ばすと同時に存在する粒子が増え、
+        /// 元の上限（両方の火花とも 500）に達すると以後のカットで火花が出なくなるため。
+        /// </summary>
+        private static void RaiseLimit(ParticleSystem ps)
+        {
+            var main = ps.main;
+            var current = main.maxParticles;
+            main.maxParticles = current > int.MaxValue / LimitMultiplier ? int.MaxValue : current * LimitMultiplier;
+        }
+
+        /// <summary>% の設定値を倍率にする。いずれかが 0 なら false（非表示にする）。</summary>
+        private static bool TryGetScales(int widthPercent, int lengthPercent, int durationPercent,
+            out float width, out float length, out float duration)
+        {
+            width = Mathf.Clamp(widthPercent, 0, MaxPercent) / 100f;
+            length = Mathf.Clamp(lengthPercent, 0, MaxPercent) / 100f;
+            duration = Mathf.Clamp(durationPercent, 0, MaxPercent) / 100f;
+            return width > 0f && length > 0f && duration > 0f;
+        }
+
+        /// <summary>
+        /// カットの火花は進行方向に伸ばして描かれ、見た目の長さは「太さ × lengthScale + 速さ × velocityScale」。
+        /// 幅は大きさ、長さは2つの係数で変え、lengthScale を幅の倍率で割って幅を変えても長さが変わらないようにする。
+        /// </summary>
+        private static void ScaleShape(ParticleSystem ps, float width, float length)
+        {
             var main = ps.main;
             if (main.startSize3D)
             {
-                main.startSizeXMultiplier *= width;
-                main.startSizeYMultiplier *= width;
-                main.startSizeZMultiplier *= width;
+                main.startSizeX = ScaleCurve(main.startSizeX, width);
+                main.startSizeY = ScaleCurve(main.startSizeY, width);
+                main.startSizeZ = ScaleCurve(main.startSizeZ, width);
             }
             else
             {
-                main.startSizeMultiplier *= width;
+                main.startSize = ScaleCurve(main.startSize, width);
             }
 
             if (ps.TryGetComponent(out ParticleSystemRenderer renderer))
@@ -374,9 +449,29 @@ namespace AirPurifier
                 renderer.lengthScale *= length / width;
                 renderer.velocityScale *= length;
             }
+        }
 
-            s_slashLifetimeMin = SlashLifetimeMin * duration;
-            s_slashLifetimeMax = SlashLifetimeMax * duration;
+        /// <summary>
+        /// 値の形式（定数・2つの定数の間でランダム・曲線）ごとに倍率を掛ける。
+        /// 2つの定数の形式では、乗数だけを変えても下限に効かない可能性があるため、両方の値に掛ける。
+        /// </summary>
+        private static ParticleSystem.MinMaxCurve ScaleCurve(ParticleSystem.MinMaxCurve curve, float scale)
+        {
+            switch (curve.mode)
+            {
+                case ParticleSystemCurveMode.Constant:
+                    curve.constant *= scale;
+                    break;
+                case ParticleSystemCurveMode.TwoConstants:
+                    curve.constantMin *= scale;
+                    curve.constantMax *= scale;
+                    break;
+                default:
+                    curve.curveMultiplier *= scale;
+                    break;
+            }
+
+            return curve;
         }
 
         /// <summary>
